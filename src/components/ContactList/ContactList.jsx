@@ -1,20 +1,32 @@
 import styles from './contact-list.module.css';
-import propTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteContact } from 'redux/contacts/contacts-slice';
-import {getFilteredContacts} from 'redux/contacts/contacts-selectors';
-
+import { useEffect } from 'react';
+import { useDispatch, useSelector} from 'react-redux';
+import { deleteContact, fetchContacts } from 'redux/operations';
+import { selectFilterContacts, selectIsLoading, selectError } from 'redux/selectors';
 
 const ContactList = () => {
   const dispatch = useDispatch();
-  const filteredContacts = useSelector(getFilteredContacts);
+  const filteredContacts = useSelector(selectFilterContacts);
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+
 
   const onDeleteContact = id => {
     const action = deleteContact(id);
     dispatch(action);
   };
+  
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
-  const elements = filteredContacts.map(contact => (
+  return (
+    <>
+    {isLoading && <div className={styles.spinner}></div>}
+    {!filteredContacts?.length && !isLoading && !error && (<b className="loader"> Add some contacts <br /> Your phonebook is empty</b>) }
+    {error && <b className={styles.text}>{error}</b>}
+     <ul className={styles.list}>
+    {filteredContacts.map(contact => (
     <li key={contact.id} id={contact.id} className={styles.item}>
       <span className={styles.span}>{contact.name}:</span>
       <span>{contact.number}</span>
@@ -22,29 +34,9 @@ const ContactList = () => {
         Delete
       </button>
     </li>
-  ));
-  return (
-    <>
-      {filteredContacts.length > 0 ? (
-        <ul className={styles.list}>{elements} </ul>
-      ) : (
-        <h2>
-          Add some contacts <br /> Your phonebook is empty
-        </h2>
-      )}
-    </>
+  ))}
+     </ul>
+     </>
   );
 };
-
-ContactList.propTypes = {
-  contacts: propTypes.arrayOf(
-    propTypes.shape({
-      id: propTypes.string.isRequired,
-      name: propTypes.string.isRequired,
-      number: propTypes.string.isRequired,
-    })
-  ),
-  deleteContact: propTypes.func.isRequired,
-};
-
 export default ContactList;

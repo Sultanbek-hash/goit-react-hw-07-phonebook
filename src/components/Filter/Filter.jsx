@@ -1,14 +1,14 @@
 import styles from './filter.module.css';
-import propTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFilter, getFilter } from 'redux/filter/filter-slice';
+import { setFilter} from 'redux/filter/filter-slice';
+import { selectStatusFilter } from 'redux/selectors';
 
 const Filter = () => {
   const dispatch = useDispatch();
-  const filter = useSelector(getFilter);
+  const filter = useSelector(selectStatusFilter);
 
   const handleChangeFilter = e => {
-    dispatch(setFilter(e.target.value));
+    dispatch(setFilter(e.target.value.trim()));
   };
 
   return (
@@ -19,8 +19,4 @@ const Filter = () => {
   );
 };
 
-Filter.propTypes = {
-  filter: propTypes.string.isRequired,
-  onChange: propTypes.func.isRequired,
-};
 export default Filter;
